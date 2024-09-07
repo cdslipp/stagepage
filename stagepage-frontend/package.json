@@ -34,6 +34,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@directus/sdk": "^17.0.1"
+		"@directus/sdk": "^17.0.1",
+		"svelte-swipe": "^2.0.4"
 	}
 }
