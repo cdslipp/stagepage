@@ -1,15 +1,13 @@
 <script>
-	import Credits from '$lib/components/Credits.svelte';
-	import Biographies from '$lib/components/Biographies.svelte';
-
 	let { data } = $props();
+	console.log(data);
 </script>
 
-<h1>Program Title: {data.program.title}</h1>
+<h1>Program List</h1>
 
-<Credits />
-
-<Biographies />
+{#each data.programs as program}
+	<a href="/{program.slug}">{program.title}</a>
+{/each}
 
 <style>
 	h1 {

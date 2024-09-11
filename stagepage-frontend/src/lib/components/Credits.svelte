@@ -12,17 +12,19 @@
 	];
 </script>
 
-<section class="credits">
-	<h2>Credits</h2>
-	<ul>
-		{#each credits as credit}
-			<li>
-				<span class="role">{credit.role}:</span>
-				<span class="name">{credit.name}</span>
-			</li>
-		{/each}
-	</ul>
-</section>
+<article>
+	<section class="credits">
+		<h2>Credits</h2>
+		<ul>
+			{#each credits as credit}
+				<li>
+					<span class="role">{credit.role}:</span>
+					<span class="name">{credit.name}</span>
+				</li>
+			{/each}
+		</ul>
+	</section>
+</article>
 
 <style>
 	.credits ul {
