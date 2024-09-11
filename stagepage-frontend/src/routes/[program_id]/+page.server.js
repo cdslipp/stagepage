@@ -17,6 +17,8 @@ export async function load({ params, fetch }) {
 					'slug',
 					'dedication',
 					'land_acknowledgement',
+					'directors_note',
+					'writers_notes',
 					'cover',
 					{
 						production: [

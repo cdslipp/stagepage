@@ -52,10 +52,22 @@
 		<Credits credits={data.program.production.show_id.credits} />
 	</section>
 	<!-- Add other sections here as they become available in your data -->
-	<section id="directors-note">
-		<h2>Director's Note</h2>
-		<!-- Add director's note content here -->
-	</section>
+	<article id="writers-note">
+		{#if data.program.writers_notes}
+			<section>
+				<h2>Writer's Note</h2>
+				{@html data.program.writers_notes}
+			</section>
+		{/if}
+	</article>
+	<article id="directors-note">
+		{#if data.program.directors_note}
+			<section>
+				<h2>Director's Note</h2>
+				{@html data.program.directors_note}
+			</section>
+		{/if}
+	</article>
 	<section id="biographies">
 		<h2>Biographies</h2>
 		<!-- Add biographies content here -->
@@ -105,6 +117,10 @@
 	}
 	h1 {
 		color: #333;
+	}
+	img {
+		width: 100%;
+		display: cover;
 	}
 	.dedication,
 	.land-acknowledgement {
