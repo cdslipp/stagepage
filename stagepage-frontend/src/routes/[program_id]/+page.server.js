@@ -11,8 +11,22 @@ export async function load({ params, fetch }) {
 	try {
 		const programs = await directus.request(
 			readItems('programs', {
-				fields: ['id', 'title', 'slug', 'dedication', 'land_acknowledgement', 'cover'],
-				limit: 1, // Assuming we're just getting the first program for now
+				fields: [
+					'id',
+					'title',
+					'slug',
+					'dedication',
+					'land_acknowledgement',
+					'cover',
+					{
+						production: [
+							{
+								show_id: [`*`, { credits: [`*`, { people: ['*', { people_id: ['*'] }] }] }]
+							}
+						]
+					}
+				],
+				limit: 1,
 				filter: {
 					slug: {
 						_eq: program_id
@@ -21,7 +35,8 @@ export async function load({ params, fetch }) {
 			})
 		);
 
-		console.log('programs', programs);
+		console.log('programs', programs[0]);
+		console.log('programs', programs[0].production.show_id.credits[0]);
 
 		if (programs.length === 0) {
 			return {

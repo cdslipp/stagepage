@@ -10,7 +10,7 @@
 	function toggleMenu() {
 		showMenu = !showMenu;
 	}
-	const menuItems = [
+	const programSections = [
 		{ id: 'credits', title: 'Credits' },
 		{ id: 'land-acknowledgement', title: 'Land Acknowledgement' },
 		{ id: 'directors-note', title: "Director's Note" },
@@ -49,7 +49,7 @@
 		</section>
 	{/if}
 	<section id="credits">
-		<Credits credits={data.program.credits} />
+		<Credits credits={data.program.production.show_id.credits} />
 	</section>
 	<!-- Add other sections here as they become available in your data -->
 	<section id="directors-note">
@@ -82,7 +82,7 @@
 		>
 			<button class="close-menu" on:click={toggleMenu}>&times;</button>
 			<nav>
-				{#each menuItems as item}
+				{#each programSections as item}
 					<a href="#{item.id}" on:click|preventDefault={() => scrollToSection(item.id)}
 						>{item.title}</a
 					>
