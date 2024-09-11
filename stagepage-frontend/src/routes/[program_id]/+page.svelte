@@ -3,20 +3,17 @@
 	import { fade, slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { PUBLIC_DIRECTUS_URL } from '$env/static/public';
+
 	/** @type {import('./$types').PageData} */
-	export let data;
+	let { data } = $props();
+
 	let programCover = PUBLIC_DIRECTUS_URL + '/assets/' + data.program.cover;
-	let showMenu = false;
+	let showMenu = $state(false);
+
 	function toggleMenu() {
 		showMenu = !showMenu;
 	}
-	const programSections = [
-		{ id: 'credits', title: 'Credits' },
-		{ id: 'land-acknowledgement', title: 'Land Acknowledgement' },
-		{ id: 'directors-note', title: "Director's Note" },
-		{ id: 'biographies', title: 'Biographies' },
-		{ id: 'upcoming-performances', title: 'Upcoming Performances' }
-	];
+
 	function scrollToSection(id) {
 		const element = document.getElementById(id);
 		if (element) {
@@ -24,7 +21,58 @@
 		}
 		showMenu = false;
 	}
+
+	let programStructure = $derived(
+		data.program.structure || {
+			sections: [],
+			menuItems: []
+		}
+	);
+
+	function truncateText(text, limit) {
+		if (text.length <= limit) return text;
+		return text.slice(0, limit).trim() + '...';
+	}
+
+	let expandedSections = $state({});
+
+	function toggleExpand(sectionId) {
+		expandedSections[sectionId] = !expandedSections[sectionId];
+	}
 </script>
+
+{#snippet coverSection(cover, title)}
+	<img src={cover} alt="Program Cover" />
+	<h1 class="title">{title}</h1>
+{/snippet}
+
+{#snippet contentSection(section, content)}
+	<article id={section.id}>
+		<h2>{section.title}</h2>
+		{#if content.length > 600 && !expandedSections[section.id]}
+			{@html truncateText(content, 1400)}
+			<button on:click={() => toggleExpand(section.id)}>Show More</button>
+		{:else}
+			{@html content}
+			{#if content.length > 600}
+				<button on:click={() => toggleExpand(section.id)}>Show Less</button>
+			{/if}
+		{/if}
+	</article>
+{/snippet}
+
+{#snippet creditsSection(credits)}
+	<section id="credits">
+		<Credits {credits} />
+	</section>
+{/snippet}
+
+{#snippet qrCodeSection(section)}
+	<section id={section.id}>
+		<h2>{section.title}</h2>
+		<!-- Insert QR code component or image here -->
+	</section>
+{/snippet}
 
 <svelte:head>
 	<link
@@ -34,48 +82,19 @@
 </svelte:head>
 
 <main>
-	<img src={programCover} alt="Program Cover" />
-	<h1>{data.program.title}</h1>
-	{#if data.program.dedication}
-		<section id="dedication" class="dedication">
-			<h2>Dedication</h2>
-			{@html data.program.dedication}
-		</section>
-	{/if}
-	{#if data.program.land_acknowledgement}
-		<section id="land-acknowledgement" class="land-acknowledgement">
-			<h2>Land Acknowledgement</h2>
-			{@html data.program.land_acknowledgement}
-		</section>
-	{/if}
-	<section id="credits">
-		<Credits credits={data.program.production.show_id.credits} />
-	</section>
-	<!-- Add other sections here as they become available in your data -->
-	<article id="writers-note">
-		{#if data.program.writers_notes}
-			<section>
-				<h2>Writer's Note</h2>
-				{@html data.program.writers_notes}
-			</section>
+	{#each programStructure.sections as section}
+		{#if section.type === 'cover'}
+			{@render coverSection(programCover, data.program.title)}
+		{:else if section.type === 'content'}
+			{#if data.program[section.id]}
+				{@render contentSection(section, data.program[section.id])}
+			{/if}
+		{:else if section.type === 'credits'}
+			{@render creditsSection(data.program.production.show_id.credits)}
+		{:else if section.type === 'qr_code'}
+			{@render qrCodeSection(section)}
 		{/if}
-	</article>
-	<article id="directors-note">
-		{#if data.program.directors_note}
-			<section>
-				<h2>Director's Note</h2>
-				{@html data.program.directors_note}
-			</section>
-		{/if}
-	</article>
-	<section id="biographies">
-		<h2>Biographies</h2>
-		<!-- Add biographies content here -->
-	</section>
-	<section id="upcoming-performances">
-		<h2>Upcoming Performances</h2>
-		<!-- Add upcoming performances content here -->
-	</section>
+	{/each}
 </main>
 
 <!-- Centered menu button -->
@@ -94,10 +113,12 @@
 		>
 			<button class="close-menu" on:click={toggleMenu}>&times;</button>
 			<nav>
-				{#each programSections as item}
-					<a href="#{item.id}" on:click|preventDefault={() => scrollToSection(item.id)}
-						>{item.title}</a
-					>
+				{#each programStructure.menuItems as itemId}
+					{#if programStructure.sections.find((s) => s.id === itemId)}
+						<a href="#{itemId}" on:click|preventDefault={() => scrollToSection(itemId)}>
+							{programStructure.sections.find((s) => s.id === itemId).title}
+						</a>
+					{/if}
 				{/each}
 			</nav>
 		</div>
@@ -116,6 +137,7 @@
 		padding: 20px;
 	}
 	h1 {
+		padding-top: 0.7rem;
 		color: #333;
 	}
 	img {
@@ -195,5 +217,17 @@
 	}
 	nav a:hover {
 		color: #555;
+	}
+
+	button {
+		background-color: #f0f0f0;
+		border: none;
+		padding: 5px 10px;
+		margin-top: 10px;
+		cursor: pointer;
+		border-radius: 5px;
+	}
+	button:hover {
+		background-color: #e0e0e0;
 	}
 </style>

@@ -58,13 +58,7 @@
 		font-size: 24px;
 		margin-bottom: 20px;
 	}
-	.credits ul {
-		list-style-type: none;
-		padding: 0;
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-		gap: 20px;
-	}
+
 	.credits li {
 		display: flex;
 		flex-direction: column;
@@ -87,8 +81,8 @@
 		list-style-type: none;
 		padding: 0;
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-		gap: 20px;
+		grid-template-columns: repeat(auto-fit, minmax(1200px, 2fr));
+		gap: 10px;
 	}
 	.credit-list li {
 		display: flex;

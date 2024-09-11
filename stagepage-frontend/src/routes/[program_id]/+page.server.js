@@ -13,6 +13,7 @@ export async function load({ params, fetch }) {
 			readItems('programs', {
 				fields: [
 					'id',
+					'structure',
 					'title',
 					'slug',
 					'dedication',
