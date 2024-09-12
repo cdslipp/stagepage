@@ -3,15 +3,44 @@
 	import { fade, slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { PUBLIC_DIRECTUS_URL } from '$env/static/public';
+	import MenuBar from '$lib/components/MenuBar.svelte';
+	import { browser } from '$app/environment';
+
+	import { storeProgram, subscribeToProgramUpdates } from '$lib/dexie';
 
 	/** @type {import('./$types').PageData} */
 	let { data } = $props();
 
 	let programCover = PUBLIC_DIRECTUS_URL + '/assets/' + data.program.cover;
+
+	let currentArticle = $state(null);
+
 	let showMenu = $state(false);
+	let currentMenuState = 'menu'; // Can be 'menu', 'close', or 'nav'
+
+	if (browser) {
+		storeProgram(data.program);
+		subscribeToProgramUpdates(data.directus, data.program.id); // Set up WebSocket subscription for real-time updates
+	}
 
 	function toggleMenu() {
 		showMenu = !showMenu;
+		currentMenuState = showMenu ? 'close' : 'menu';
+	}
+
+	function navigateToNext() {
+		// logic to navigate to the next section...
+		currentMenuState = 'nav'; // set the state to show nav buttons
+	}
+
+	function navigateToPrevious() {
+		// logic to navigate to the previous section...
+		currentMenuState = 'nav'; // set the state to show nav buttons
+	}
+
+	function closeMenu() {
+		showMenu = false;
+		currentMenuState = 'menu';
 	}
 
 	function scrollToSection(id) {
@@ -29,15 +58,22 @@
 		}
 	);
 
-	function truncateText(text, limit) {
-		if (text.length <= limit) return text;
-		return text.slice(0, limit).trim() + '...';
+	function openArticle(section) {
+		currentArticle = section;
 	}
 
-	let expandedSections = $state({});
+	function closeArticle() {
+		currentArticle = null;
+	}
 
-	function toggleExpand(sectionId) {
-		expandedSections[sectionId] = !expandedSections[sectionId];
+	function getNextSection(currentId) {
+		const currentIndex = programStructure.sections.findIndex((s) => s.id === currentId);
+		return programStructure.sections[currentIndex + 1];
+	}
+
+	function getPreviousSection(currentId) {
+		const currentIndex = programStructure.sections.findIndex((s) => s.id === currentId);
+		return programStructure.sections[currentIndex - 1];
 	}
 </script>
 
@@ -47,18 +83,13 @@
 {/snippet}
 
 {#snippet contentSection(section, content)}
-	<article id={section.id}>
-		<h2>{section.title}</h2>
-		{#if content.length > 600 && !expandedSections[section.id]}
-			{@html truncateText(content, 1400)}
-			<button on:click={() => toggleExpand(section.id)}>Show More</button>
-		{:else}
-			{@html content}
-			{#if content.length > 600}
-				<button on:click={() => toggleExpand(section.id)}>Show Less</button>
-			{/if}
-		{/if}
-	</article>
+	<a href="/{data.program.slug}/{section.id}">
+		<article id={section.id}>
+			<h2>{section.title}</h2>
+			{@html content.slice(0, 200) + '...'}
+			<span class="read-more">Read more</span>
+		</article>
+	</a>
 {/snippet}
 
 {#snippet creditsSection(credits)}
@@ -97,12 +128,7 @@
 	{/each}
 </main>
 
-<!-- Centered menu button -->
-<div class="nav-menu">
-	{#if !showMenu}
-		<button id="navButton" on:click={toggleMenu}>menu</button>
-	{/if}
-</div>
+<MenuBar state={currentMenuState} onClick={toggleMenu} />
 
 <!-- Fullscreen overlay menu -->
 {#if showMenu}
@@ -229,5 +255,23 @@
 	}
 	button:hover {
 		background-color: #e0e0e0;
+	}
+
+	article {
+		cursor: pointer;
+		padding: 15px;
+		border: 1px solid #e0e0e0;
+		border-radius: 5px;
+		margin-bottom: 20px;
+		transition: background-color 0.3s;
+	}
+
+	article:hover {
+		background-color: #f9f9f9;
+	}
+
+	.read-more {
+		color: #0066cc;
+		font-weight: bold;
 	}
 </style>
