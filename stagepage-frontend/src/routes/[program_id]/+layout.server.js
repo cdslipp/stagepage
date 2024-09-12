@@ -1,7 +1,7 @@
 import getDirectusInstance from '$lib/directus';
 import { readItems } from '@directus/sdk';
 
-/** @type {import('./$types').PageServerLoad} */
+/** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params, fetch }) {
 	const directus = getDirectusInstance(fetch);
 	const { program_id } = params;
@@ -37,9 +37,6 @@ export async function load({ params, fetch }) {
 				}
 			})
 		);
-
-		console.log('programs', programs[0]);
-		console.log('programs', programs[0].production.show_id.credits[0]);
 
 		if (programs.length === 0) {
 			return {

@@ -13,9 +13,6 @@ export default function getDirectusInstance(fetch) {
 
 // Create Directus instance for WebSocket connection
 export function getDirectusClientSide() {
-	if (!browser) {
-		return null;
-	}
 	const directus = createDirectus(PUBLIC_DIRECTUS_URL)
 		.with(staticToken(PUBLIC_DIRECTUS_ACCESS_TOKEN)) // Add authentication
 		.with(realtime()); // WebSocket for real-time updates

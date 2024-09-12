@@ -1,60 +1,72 @@
 <script>
-	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
 	import { fade, fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
+	import { page } from '$app/stores';
 
 	let { data } = $props();
 
-	console.log('page data', data);
+	// Use $page store to track the current section reactively
+	let currentSection = $state(data.section);
 
-	console.log('Page data', $page);
+	let sectionContent = $state(data.sectionContent);
 
-	let currentSection = $page.params.section;
-	let programStructure = $page.data.program.structure;
-	let sectionContent = $page.data.program[currentSection];
+	// Destructure props and set up program data
+	let program = $state(data.program);
+	let programStructure = program.structure;
 
-	function getNextSection(currentId) {
-		const currentIndex = programStructure.sections.findIndex((s) => s.id === currentId);
-		return programStructure.sections[currentIndex + 1];
-	}
+	// Get next and previous sections reactively
+	let nextSection = $derived(getNextSection(currentSection));
+	let prevSection = $derived(getPreviousSection(currentSection));
 
-	function getPreviousSection(currentId) {
-		const currentIndex = programStructure.sections.findIndex((s) => s.id === currentId);
-		return programStructure.sections[currentIndex - 1];
-	}
-
-	function navigateToNext() {
-		const nextSection = getNextSection(currentSection);
-		if (nextSection) {
-			goto(`${$page.url.pathname.split('/').slice(0, -1).join('/')}/${nextSection.id}`);
+	// Returns the next section based on the current section id
+	function getNextSection(currentSectionId) {
+		const currentIndex = program.structure.menuItems.findIndex((item) => item === currentSectionId);
+		if (currentIndex === -1 || currentIndex >= program.structure.menuItems.length - 1) {
+			return null; // No next section
 		}
+		const nextSectionId = program.structure.menuItems[currentIndex + 1];
+		return program.structure.sections.find(
+			(section) => section.id === nextSectionId && sectionContentExists(section)
+		);
 	}
 
-	function navigateToPrevious() {
-		const previousSection = getPreviousSection(currentSection);
-		if (previousSection) {
-			goto(`${$page.url.pathname.split('/').slice(0, -1).join('/')}/${previousSection.id}`);
+	// Returns the previous section based on the current section id
+	function getPreviousSection(currentSectionId) {
+		const currentIndex = program.structure.menuItems.findIndex((item) => item === currentSectionId);
+		if (currentIndex <= 0) {
+			return null; // No previous section
 		}
+		const prevSectionId = program.structure.menuItems[currentIndex - 1];
+		return program.structure.sections.find(
+			(section) => section.id === prevSectionId && sectionContentExists(section)
+		);
 	}
 
-	function closeArticle() {
-		goto($page.url.pathname.split('/').slice(0, -1).join('/'));
+	// Check if a section's content exists and is not null
+	function sectionContentExists(section) {
+		return section && program[section.id] != null;
 	}
+
+	$effect(() => {
+		// Update the current section when the page store changes
+		currentSection = data.section;
+		sectionContent = data.sectionContent;
+	});
 </script>
 
 <div class="overlay" transition:fade={{ duration: 300 }}>
+	{sectionContent}
 	<div class="content" transition:fly={{ y: '100%', duration: 300, easing: quintOut }}>
-		<button class="close" on:click={closeArticle}>&times;</button>
-		<h2>{programStructure.sections.find((s) => s.id === currentSection).title}</h2>
+		<h2>{programStructure.sections.find((s) => s.id === currentSection)?.title || ''}</h2>
+
 		{@html sectionContent}
 
 		<div class="navigation">
-			{#if getPreviousSection(currentSection)}
-				<button on:click={navigateToPrevious}>Previous</button>
+			{#if prevSection}
+				<a href={prevSection.id}>Prev - {prevSection.title}</a>
 			{/if}
-			{#if getNextSection(currentSection)}
-				<button on:click={navigateToNext}>Next</button>
+			{#if nextSection}
+				<a href={nextSection.id}>Next - {nextSection.title}</a>
 			{/if}
 		</div>
 	</div>
@@ -86,31 +98,9 @@
 		margin-top: 0;
 	}
 
-	.close {
-		position: absolute;
-		top: 10px;
-		right: 10px;
-		font-size: 24px;
-		background: none;
-		border: none;
-		cursor: pointer;
-	}
-
 	.navigation {
 		display: flex;
 		justify-content: space-between;
 		margin-top: 20px;
-	}
-
-	button {
-		padding: 10px 20px;
-		background-color: #f0f0f0;
-		border: none;
-		border-radius: 5px;
-		cursor: pointer;
-	}
-
-	button:hover {
-		background-color: #e0e0e0;
 	}
 </style>

@@ -20,7 +20,6 @@
 
 	if (browser) {
 		storeProgram(data.program);
-		subscribeToProgramUpdates(data.directus, data.program.id); // Set up WebSocket subscription for real-time updates
 	}
 
 	function toggleMenu() {
