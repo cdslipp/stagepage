@@ -2,6 +2,8 @@
 	import { fade, fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { page } from '$app/stores';
+	import MenuBar from '$lib/components/MenuBar.svelte';
+	import NavMenu from '$lib/components/NavMenu.svelte';
 
 	let { data } = $props();
 
@@ -55,7 +57,6 @@
 </script>
 
 <div class="overlay" transition:fade={{ duration: 300 }}>
-	{sectionContent}
 	<div class="content" transition:fly={{ y: '100%', duration: 300, easing: quintOut }}>
 		<h2>{programStructure.sections.find((s) => s.id === currentSection)?.title || ''}</h2>
 
@@ -71,6 +72,9 @@
 		</div>
 	</div>
 </div>
+
+<!-- Menu component with prev, close, and next buttons -->
+<NavMenu menuState="nav" {prevSection} {nextSection} />
 
 <style>
 	.overlay {

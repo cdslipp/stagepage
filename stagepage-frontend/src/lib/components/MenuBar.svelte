@@ -1,19 +1,32 @@
 <script>
-	export let menuState = 'menu'; // 'menu', 'close', or 'nav'
-
-	export let onClick = () => {};
+	// Props to receive current section and target routes for prev/next
+	export let menuState = 'nav'; // Default to 'nav' mode
+	export let prevSection = null; // Previous section object
+	export let nextSection = null; // Next section object
+	export let onClickClose = () => {}; // Function to handle close button click
 </script>
 
 <div class="menu-button-container">
-	<button id="menuButton" on:click={onClick}>
-		{#if menuState === 'menu'}
-			menu
-		{:else if menuState === 'close'}
-			close
-		{:else if menuState === 'nav'}
+	<!-- Navigation buttons -->
+	<button id="menuButton">
+		{#if menuState === 'nav'}
 			<div class="nav-buttons">
-				<span>&#9664; prev</span>
-				<span>next &#9654;</span>
+				<!-- Previous Section -->
+				{#if prevSection}
+					<a href={prevSection.id} class="nav-button prev-button">
+						&#9664; {prevSection.title}
+					</a>
+				{/if}
+
+				<!-- Close Button -->
+				<span class="close-button" on:click={onClickClose}>close</span>
+
+				<!-- Next Section -->
+				{#if nextSection}
+					<a href={nextSection.id} class="nav-button next-button">
+						{nextSection.title} &#9654;
+					</a>
+				{/if}
 			</div>
 		{/if}
 	</button>
@@ -51,10 +64,6 @@
 		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 	}
 
-	#menuButton:active {
-		transform: scale(0.95);
-	}
-
 	#menuButton:hover {
 		background: rgba(255, 255, 255, 1);
 	}
@@ -62,9 +71,27 @@
 	.nav-buttons {
 		display: flex;
 		justify-content: space-between;
-		position: absolute;
-		top: 50%;
 		width: 100%;
-		transform: translateY(-50%);
+	}
+
+	.nav-button {
+		color: black;
+		text-decoration: none;
+		padding: 10px;
+		font-size: 14px;
+	}
+
+	.prev-button {
+		text-align: left;
+	}
+
+	.next-button {
+		text-align: right;
+	}
+
+	.close-button {
+		cursor: pointer;
+		font-size: 16px;
+		margin: 0 20px;
 	}
 </style>
