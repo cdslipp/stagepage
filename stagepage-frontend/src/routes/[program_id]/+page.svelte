@@ -2,21 +2,19 @@
 	import Credits from '$lib/components/Credits.svelte';
 	import { fade, slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
-	import { PUBLIC_DIRECTUS_URL } from '$env/static/public';
 	import MenuBar from '$lib/components/MenuBar.svelte';
+	import { PUBLIC_DIRECTUS_URL } from '$env/static/public';
 	import { browser } from '$app/environment';
 
-	import { storeProgram, subscribeToProgramUpdates } from '$lib/dexie';
+	import { storeProgram } from '$lib/dexie';
 
 	/** @type {import('./$types').PageData} */
 	let { data } = $props();
 
-	let programCover = PUBLIC_DIRECTUS_URL + '/assets/' + data.program.cover;
-
-	let currentArticle = $state(null);
+	let programCover = `${PUBLIC_DIRECTUS_URL}/assets/${data.program.cover}`;
 
 	let showMenu = $state(false);
-	let currentMenuState = 'menu'; // Can be 'menu', 'close', or 'nav'
+	let currentMenuState = $state('menu'); // 'menu', 'close', or 'nav'
 
 	if (browser) {
 		storeProgram(data.program);
@@ -27,53 +25,19 @@
 		currentMenuState = showMenu ? 'close' : 'menu';
 	}
 
-	function navigateToNext() {
-		// logic to navigate to the next section...
-		currentMenuState = 'nav'; // set the state to show nav buttons
-	}
-
-	function navigateToPrevious() {
-		// logic to navigate to the previous section...
-		currentMenuState = 'nav'; // set the state to show nav buttons
-	}
-
-	function closeMenu() {
-		showMenu = false;
-		currentMenuState = 'menu';
-	}
-
 	function scrollToSection(id) {
 		const element = document.getElementById(id);
 		if (element) {
 			element.scrollIntoView({ behavior: 'smooth' });
 		}
 		showMenu = false;
+		currentMenuState = 'menu';
 	}
 
-	let programStructure = $derived(
-		data.program.structure || {
-			sections: [],
-			menuItems: []
-		}
-	);
-
-	function openArticle(section) {
-		currentArticle = section;
-	}
-
-	function closeArticle() {
-		currentArticle = null;
-	}
-
-	function getNextSection(currentId) {
-		const currentIndex = programStructure.sections.findIndex((s) => s.id === currentId);
-		return programStructure.sections[currentIndex + 1];
-	}
-
-	function getPreviousSection(currentId) {
-		const currentIndex = programStructure.sections.findIndex((s) => s.id === currentId);
-		return programStructure.sections[currentIndex - 1];
-	}
+	let programStructure = data.program.structure || {
+		sections: [],
+		menuItems: []
+	};
 </script>
 
 {#snippet coverSection(cover, title)}
@@ -97,13 +61,6 @@
 	</section>
 {/snippet}
 
-{#snippet qrCodeSection(section)}
-	<section id={section.id}>
-		<h2>{section.title}</h2>
-		<!-- Insert QR code component or image here -->
-	</section>
-{/snippet}
-
 <svelte:head>
 	<link
 		href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
@@ -121,13 +78,11 @@
 			{/if}
 		{:else if section.type === 'credits'}
 			{@render creditsSection(data.program.production.show_id.credits)}
-		{:else if section.type === 'qr_code'}
-			{@render qrCodeSection(section)}
 		{/if}
 	{/each}
 </main>
 
-<MenuBar state={currentMenuState} onClick={toggleMenu} />
+<MenuBar state={currentMenuState} on:click={toggleMenu} />
 
 <!-- Fullscreen overlay menu -->
 {#if showMenu}
@@ -167,34 +122,7 @@
 	}
 	img {
 		width: 100%;
-		display: cover;
-	}
-	.dedication,
-	.land-acknowledgement {
-		margin: 20px 0;
-		padding: 15px;
-		background-color: #f9f9f9;
-		border-left: 5px solid #333;
-	}
-	.nav-menu {
-		position: fixed;
-		left: 50%;
-		bottom: 20px;
-		transform: translateX(-50%);
-		z-index: 1000;
-	}
-	#navButton {
-		padding: 10px 20px;
-		border: none;
-		border-radius: 50px;
-		background-color: #333;
-		color: white;
-		font-size: 16px;
-		cursor: pointer;
-		transition: transform 0.3s;
-	}
-	#navButton:active {
-		transform: scale(0.9);
+		object-fit: cover;
 	}
 	.menu-overlay {
 		position: fixed;
@@ -214,7 +142,6 @@
 		height: 100%;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
 		align-items: center;
 	}
 	.close-menu {
@@ -227,11 +154,6 @@
 		color: black;
 		cursor: pointer;
 	}
-	nav {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	}
 	nav a {
 		color: black;
 		text-decoration: none;
@@ -243,19 +165,6 @@
 	nav a:hover {
 		color: #555;
 	}
-
-	button {
-		background-color: #f0f0f0;
-		border: none;
-		padding: 5px 10px;
-		margin-top: 10px;
-		cursor: pointer;
-		border-radius: 5px;
-	}
-	button:hover {
-		background-color: #e0e0e0;
-	}
-
 	article {
 		cursor: pointer;
 		padding: 15px;
@@ -264,11 +173,9 @@
 		margin-bottom: 20px;
 		transition: background-color 0.3s;
 	}
-
 	article:hover {
 		background-color: #f9f9f9;
 	}
-
 	.read-more {
 		color: #0066cc;
 		font-weight: bold;

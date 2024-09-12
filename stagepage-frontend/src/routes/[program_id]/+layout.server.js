@@ -6,8 +6,6 @@ export async function load({ params, fetch }) {
 	const directus = getDirectusInstance(fetch);
 	const { program_id } = params;
 
-	console.log('program_id', program_id);
-
 	try {
 		const programs = await directus.request(
 			readItems('programs', {
@@ -24,7 +22,17 @@ export async function load({ params, fetch }) {
 					{
 						production: [
 							{
-								show_id: [`*`, { credits: [`*`, { people: ['*', { people_id: ['*'] }] }] }]
+								show_id: [
+									'*',
+									{
+										credits: [
+											'*',
+											{
+												people: ['*', { people_id: ['*'] }]
+											}
+										]
+									}
+								]
 							}
 						]
 					}
@@ -38,25 +46,20 @@ export async function load({ params, fetch }) {
 			})
 		);
 
-		if (programs.length === 0) {
-			return {
-				status: 404,
-				error: new Error('Program not found')
-			};
+		if (!programs || programs.length === 0) {
+			throw new Error('Program not found');
 		}
 
-		const program = programs[0];
+		const [program] = programs;
 
 		return {
-			program: {
-				...program
-			}
+			program
 		};
 	} catch (error) {
 		console.error('Error fetching program:', error);
 		return {
-			status: 500,
-			error: new Error('Error fetching program')
+			status: error.message === 'Program not found' ? 404 : 500,
+			error
 		};
 	}
 }
