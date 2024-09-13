@@ -10,8 +10,12 @@
 	/** @type {import('./$types').PageData} */
 	let { data } = $props();
 
+	let program = data.program;
+
+	console.log('Program', program);
+
 	let programCover = `${PUBLIC_DIRECTUS_URL}/assets/${data.program.cover}`;
-	let showMenu = $state(false);
+	let menuOpen = $state(false);
 	let programStructure = data.program.structure || { sections: [], menuItems: [] };
 	let programSlug = data.program.slug;
 
@@ -66,10 +70,11 @@
 	{/each}
 </main>
 
-<MenuBar menuState="menu" onClickClose={toggleMenu} />
+<!-- Menu component with prev, close, and next buttons -->
+<MenuBar menuState="nav" bind:menuOpen />
 
-{#if showMenu}
-	<OverlayMenu menuItems={programStructure.sections} {programSlug} on:close={handleCloseMenu} />
+{#if menuOpen}
+	<OverlayMenu menuItems={programStructure.sections} programSlug={program.slug} bind:menuOpen />
 {/if}
 
 <style>

@@ -1,77 +1,65 @@
 <script>
 	// Props to receive current section and target routes for prev/next
-	export let menuState = 'nav'; // Default to 'nav' mode
-	export let prevSection = null; // Previous section object
-	export let nextSection = null; // Next section object
-	export let onClickClose = () => {}; // Function to handle close button click
+	let { menuOpen = $bindable(false) } = $props();
+
+	function toggleMenu() {
+		console.log('toggling menu ');
+		menuOpen = !menuOpen;
+	}
 </script>
 
-<div class="menu-button-container">
-	<!-- Navigation buttons -->
-	<button id="menuButton">
-		{#if menuState === 'nav'}
-			<div class="nav-buttons">
-				<!-- Previous Section -->
-				{#if prevSection}
-					<a href={prevSection.id} class="nav-button prev-button">
-						&#9664; {prevSection.title}
-					</a>
-				{/if}
+<div class="footer">
+	<div class="grid-container">
+		<!-- Previous Button -->
+		<div class="nav-button-container"></div>
 
-				<!-- Close Button -->
-				<span class="close-button" on:click={onClickClose}>close</span>
+		<!-- Menu Button -->
+		<div class="menu-button-container">
+			<button id="menuButton" onclick={toggleMenu}> menu </button>
+		</div>
 
-				<!-- Next Section -->
-				{#if nextSection}
-					<a href={nextSection.id} class="nav-button next-button">
-						{nextSection.title} &#9654;
-					</a>
-				{/if}
-			</div>
-		{/if}
-	</button>
+		<!-- Next Button -->
+		<div class="nav-button-container"></div>
+	</div>
 </div>
 
 <style>
-	.menu-button-container {
+	.footer {
 		position: fixed;
+		left: 0;
+		bottom: 0;
 		width: 100%;
-		height: 150px;
-		background: linear-gradient(180deg, rgba(255, 0, 0, 0) 0%, rgba(255, 255, 255, 1) 100%);
-		left: 50%;
-		bottom: 0px;
-		transform: translateX(-50%);
+		background-color: white;
+		color: black;
+		text-align: center;
+		box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
 		z-index: 1000;
-		display: flex;
-		flex-direction: row;
-		align-items: end;
-		justify-content: center;
-		padding-bottom: 15px;
+		padding: 10px 0;
+	}
+
+	.grid-container {
+		display: grid;
+		grid-template-columns: 1fr auto 1fr; /* Three columns: prev, menu, next */
+		align-items: center;
+		justify-items: center;
+		width: 100%;
 	}
 
 	#menuButton {
-		position: relative;
 		padding: 15px 30px;
+		width: 150px;
 		border: none;
 		border-radius: 50px;
 		color: white;
 		background-color: black;
 		font-size: 16px;
 		cursor: pointer;
-		transition:
-			transform 0.3s,
-			background 0.3s;
 		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 	}
 
+	/* Remove hover effect */
 	#menuButton:hover {
-		background: rgba(255, 255, 255, 1);
-	}
-
-	.nav-buttons {
-		display: flex;
-		justify-content: space-between;
-		width: 100%;
+		background: black;
 	}
 
 	.nav-button {
@@ -87,11 +75,5 @@
 
 	.next-button {
 		text-align: right;
-	}
-
-	.close-button {
-		cursor: pointer;
-		font-size: 16px;
-		margin: 0 20px;
 	}
 </style>
