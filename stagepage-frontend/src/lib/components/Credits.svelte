@@ -81,7 +81,7 @@
 		list-style-type: none;
 		padding: 0;
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(1200px, 2fr));
+		grid-template-columns: repeat(auto-fit, minmax(400px, 2fr));
 		gap: 10px;
 	}
 	.credit-list li {

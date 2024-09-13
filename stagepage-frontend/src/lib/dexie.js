@@ -43,8 +43,15 @@ export async function subscribeToProgramUpdates(programId) {
 	if (browser) {
 		try {
 			await directus.connect();
-			console.log('Connected to WebSocket');
 
+			// Listen for WebSocket events
+			directus.onWebSocket('open', () => {
+				// console.log('WebSocket connection established');
+			});
+
+			directus.onWebSocket('close', () => {
+				// console.log('WebSocket connection closed');
+			});
 			console.log('Connected');
 
 			// Listen for WebSocket events

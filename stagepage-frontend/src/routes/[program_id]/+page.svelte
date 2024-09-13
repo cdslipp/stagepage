@@ -2,7 +2,7 @@
 	import Credits from '$lib/components/Credits.svelte';
 	import { PUBLIC_DIRECTUS_URL } from '$env/static/public';
 	import { browser } from '$app/environment';
-	import { storeProgram } from '$lib/dexie';
+	import { storeProgram, subscribeToProgramUpdates } from '$lib/dexie';
 	import NavigationBar from '$lib/components/NavigationBar.svelte';
 	import MenuBar from '$lib/components/MenuBar.svelte';
 	import OverlayMenu from '$lib/components/OverlayMenu.svelte';
@@ -21,6 +21,7 @@
 
 	if (browser) {
 		storeProgram(data.program);
+		subscribeToProgramUpdates(programSlug);
 	}
 
 	function toggleMenu() {
