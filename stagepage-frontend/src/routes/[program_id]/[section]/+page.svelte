@@ -4,6 +4,7 @@
 	import { page } from '$app/stores';
 	import MenuBar from '$lib/components/MenuBar.svelte';
 	import NavMenu from '$lib/components/NavMenu.svelte';
+	import OverlayMenu from '$lib/components/OverlayMenu.svelte';
 
 	let { data } = $props();
 
@@ -49,8 +50,11 @@
 		return section && program[section.id] != null;
 	}
 
+	let menuOpen = $state(false);
+
 	$effect(() => {
 		// Update the current section when the page store changes
+		console.log('Menu open passed back', menuOpen);
 		currentSection = data.section;
 		sectionContent = data.sectionContent;
 	});
@@ -61,20 +65,19 @@
 		<h2>{programStructure.sections.find((s) => s.id === currentSection)?.title || ''}</h2>
 
 		{@html sectionContent}
+		<br />
 
-		<div class="navigation">
-			{#if prevSection}
-				<a href={prevSection.id}>Prev - {prevSection.title}</a>
-			{/if}
-			{#if nextSection}
-				<a href={nextSection.id}>Next - {nextSection.title}</a>
-			{/if}
-		</div>
+		<br />
+		<br />
 	</div>
 </div>
 
 <!-- Menu component with prev, close, and next buttons -->
-<NavMenu menuState="nav" {prevSection} {nextSection} />
+<NavMenu menuState="nav" {prevSection} {nextSection} bind:menuOpen />
+
+{#if menuOpen}
+	<OverlayMenu menuItems={programStructure.sections} programSlug={program.slug} bind:menuOpen />
+{/if}
 
 <style>
 	.overlay {

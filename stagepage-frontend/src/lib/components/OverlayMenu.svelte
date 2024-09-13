@@ -1,32 +1,24 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
-	import { fade, slide } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
 
-	export let menuItems = [];
-	export let programSlug = '';
+	let { menuItems = [], programSlug = '', menuOpen = $bindable() } = $props();
 
-	const dispatch = createEventDispatcher();
+	console.log('Program slug', programSlug);
 
 	function handleClose() {
-		dispatch('close');
+		menuOpen = false;
 	}
 </script>
 
-<div class="menu-overlay" transition:fade={{ duration: 300 }}>
-	<div
-		class="menu-content"
-		transition:slide={{ direction: 'bottom', duration: 300, easing: quintOut }}
-	>
-		<button class="close-menu" on:click={handleClose}>&times;</button>
-		<nav>
-			{#each menuItems as item}
-				<a href="/{programSlug}/{item.id}" on:click={handleClose}>
-					{item.title}
-				</a>
-			{/each}
-		</nav>
-	</div>
+<div class="menu-overlay">
+	<button class="close-menu" on:click={handleClose}>&times;</button>
+	<nav>
+		{#each menuItems as item}
+			<a href="/{programSlug}/{item.id}" on:click={handleClose}>
+				{item.title}
+			</a>
+		{/each}
+	</nav>
 </div>
 
 <style>
@@ -34,22 +26,17 @@
 		position: fixed;
 		top: 0;
 		left: 0;
-		right: 0;
-		bottom: 0;
-		background-color: rgba(255, 255, 255, 0.8);
-		backdrop-filter: blur(10px);
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		z-index: 1000;
-	}
-	.menu-content {
 		width: 100%;
 		height: 100%;
+		background-color: rgba(255, 255, 255, 0.9);
+		backdrop-filter: blur(5px);
+		z-index: 1001;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		justify-content: center;
 	}
+
 	.close-menu {
 		position: absolute;
 		top: 20px;
@@ -60,14 +47,21 @@
 		color: black;
 		cursor: pointer;
 	}
+
+	nav {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
 	nav a {
+		margin: 10px 0;
+		font-size: 24px;
 		color: black;
 		text-decoration: none;
-		font-size: 32px;
-		font-weight: 700;
-		margin: 20px 0;
 		transition: color 0.3s;
 	}
+
 	nav a:hover {
 		color: #555;
 	}

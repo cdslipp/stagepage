@@ -1,20 +1,19 @@
 <script>
 	import Credits from '$lib/components/Credits.svelte';
-	import { fade, slide } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
-	import MenuBar from '$lib/components/MenuBar.svelte';
 	import { PUBLIC_DIRECTUS_URL } from '$env/static/public';
 	import { browser } from '$app/environment';
-
 	import { storeProgram } from '$lib/dexie';
+	import NavigationBar from '$lib/components/NavigationBar.svelte';
+	import MenuBar from '$lib/components/MenuBar.svelte';
+	import OverlayMenu from '$lib/components/OverlayMenu.svelte';
 
 	/** @type {import('./$types').PageData} */
 	let { data } = $props();
 
 	let programCover = `${PUBLIC_DIRECTUS_URL}/assets/${data.program.cover}`;
-
 	let showMenu = $state(false);
-	let currentMenuState = $state('menu'); // 'menu', 'close', or 'nav'
+	let programStructure = data.program.structure || { sections: [], menuItems: [] };
+	let programSlug = data.program.slug;
 
 	if (browser) {
 		storeProgram(data.program);
@@ -22,22 +21,7 @@
 
 	function toggleMenu() {
 		showMenu = !showMenu;
-		currentMenuState = showMenu ? 'close' : 'menu';
 	}
-
-	function scrollToSection(id) {
-		const element = document.getElementById(id);
-		if (element) {
-			element.scrollIntoView({ behavior: 'smooth' });
-		}
-		showMenu = false;
-		currentMenuState = 'menu';
-	}
-
-	let programStructure = data.program.structure || {
-		sections: [],
-		menuItems: []
-	};
 </script>
 
 {#snippet coverSection(cover, title)}
@@ -82,27 +66,10 @@
 	{/each}
 </main>
 
-<MenuBar state={currentMenuState} on:click={toggleMenu} />
+<MenuBar menuState="menu" onClickClose={toggleMenu} />
 
-<!-- Fullscreen overlay menu -->
 {#if showMenu}
-	<div class="menu-overlay" transition:fade={{ duration: 300 }}>
-		<div
-			class="menu-content"
-			transition:slide={{ direction: 'bottom', duration: 300, easing: quintOut }}
-		>
-			<button class="close-menu" on:click={toggleMenu}>&times;</button>
-			<nav>
-				{#each programStructure.menuItems as itemId}
-					{#if programStructure.sections.find((s) => s.id === itemId)}
-						<a href="#{itemId}" on:click|preventDefault={() => scrollToSection(itemId)}>
-							{programStructure.sections.find((s) => s.id === itemId).title}
-						</a>
-					{/if}
-				{/each}
-			</nav>
-		</div>
-	</div>
+	<OverlayMenu menuItems={programStructure.sections} {programSlug} on:close={handleCloseMenu} />
 {/if}
 
 <style>

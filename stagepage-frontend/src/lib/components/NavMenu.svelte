@@ -1,9 +1,16 @@
 <script>
 	// Props to receive current section and target routes for prev/next
-	export let menuState = 'nav'; // Default to 'nav' mode
-	export let prevSection = null; // Previous section object
-	export let nextSection = null; // Next section object
-	export let onClickClose = () => {}; // Function to handle close button click
+	let {
+		menuState = 'nav',
+		prevSection = null,
+		nextSection = null,
+		menuOpen = $bindable(false)
+	} = $props();
+
+	function toggleMenu() {
+		console.log('toggling menu ');
+		menuOpen = !menuOpen;
+	}
 </script>
 
 <div class="footer">
@@ -19,7 +26,7 @@
 
 		<!-- Menu Button -->
 		<div class="menu-button-container">
-			<button id="menuButton" on:click={onClickClose}>
+			<button id="menuButton" on:click={toggleMenu}>
 				{menuState === 'nav' ? 'menu' : 'close'}
 			</button>
 		</div>
